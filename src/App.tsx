@@ -1,4 +1,6 @@
 import { Box, Container, Paper, Typography } from "@mui/material";
+import TransactionList from "./components/TransactionList";
+import { transactions } from "./data/transactions";
 
 function App() {
   return (
@@ -12,14 +14,12 @@ function App() {
           Track your income and expenses in one place.
         </Typography>
 
-        <Paper elevation={0} variant="outlined" sx={{ p: 3 }}>
-          <Typography variant="h6" component="h2" gutterBottom>
+        <Paper variant="outlined" sx={{ p: 3 }}>
+          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
             Transactions
           </Typography>
 
-          <Typography color="text.secondary">
-            Your transactions will appear here.
-          </Typography>
+          <TransactionList transactions={transactions} />
         </Paper>
       </Box>
     </Container>

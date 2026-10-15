@@ -1,6 +1,7 @@
 import { Box, Container, Paper, Typography } from "@mui/material";
 import TransactionList from "./components/TransactionList";
 import { transactions } from "./data/transactions";
+import SummaryCards from "./components/SummaryCards";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Typography color="text.secondary" sx={{ mb: 4 }}>
           Track your income and expenses in one place.
         </Typography>
+        <SummaryCards transactions={transactions} />
 
         <Paper variant="outlined" sx={{ p: 3 }}>
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>

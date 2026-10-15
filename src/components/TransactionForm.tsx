@@ -14,10 +14,17 @@ import {
   transactionSchema,
   type TransactionFormData,
 } from "../schemas/transactionSchema";
+import type { CreateTransactionData } from "../types/transaction";
+
+interface TransactionFormProps {
+  onAddTransaction: (data: CreateTransactionData) => void;
+}
 
 const today = new Date().toISOString().split("T")[0];
 
-export default function TransactionForm() {
+export default function TransactionForm({
+  onAddTransaction,
+}: TransactionFormProps) {
   const {
     control,
     handleSubmit,
@@ -35,7 +42,8 @@ export default function TransactionForm() {
   });
 
   const onSubmit = (data: TransactionFormData) => {
-    console.log("New transaction:", data);
+    onAddTransaction(data);
+
     reset({
       amount: 0,
       type: "expense",

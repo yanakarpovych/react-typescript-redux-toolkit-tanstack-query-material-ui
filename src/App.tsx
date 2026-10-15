@@ -1,5 +1,4 @@
-
-import { Box, Container, Paper, Typography } from '@mui/material'
+import { Box, Container, Paper, Typography } from "@mui/material";
 
 function App() {
   return (
@@ -24,7 +23,7 @@ function App() {
         </Paper>
       </Box>
     </Container>
-  )
+  );
 }
 
-export default App
+export default App;

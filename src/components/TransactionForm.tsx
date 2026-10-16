@@ -16,16 +16,25 @@ import {
   type TransactionFormData,
 } from "../schemas/transactionSchema";
 import type { CreateTransactionData, Transaction } from "../types/transaction";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TransactionFormProps {
   onAddTransaction: (data: CreateTransactionData) => Promise<Transaction>;
+  transactionToEdit?: Transaction | null;
+  onUpdateTransaction?: (
+    id: string,
+    data: CreateTransactionData,
+  ) => Promise<Transaction>;
+  onCancelEdit?: () => void;
 }
 
 const today = new Date().toISOString().split("T")[0];
 
 export default function TransactionForm({
   onAddTransaction,
+  transactionToEdit = null,
+  onUpdateTransaction,
+  onCancelEdit,
 }: TransactionFormProps) {
   const {
     control,
@@ -43,13 +52,37 @@ export default function TransactionForm({
     },
   });
 
+  useEffect(() => {
+    if (transactionToEdit) {
+      reset({
+        amount: transactionToEdit.amount,
+        type: transactionToEdit.type,
+        category: transactionToEdit.category,
+        date: transactionToEdit.date,
+        description: transactionToEdit.description,
+      });
+    } else {
+      reset({
+        amount: 0,
+        type: "expense",
+        category: "",
+        date: today,
+        description: "",
+      });
+    }
+  }, [transactionToEdit, reset, today]);
+
   const [apiError, setApiError] = useState<string | null>(null);
 
   const onSubmit = async (data: TransactionFormData) => {
     setApiError(null);
 
     try {
-      await onAddTransaction(data);
+      if (transactionToEdit && onUpdateTransaction) {
+        await onUpdateTransaction(transactionToEdit.id, data);
+      } else {
+        await onAddTransaction(data);
+      }
 
       reset({
         amount: 0,
@@ -58,15 +91,21 @@ export default function TransactionForm({
         date: today,
         description: "",
       });
+
+      onCancelEdit?.();
     } catch {
-      setApiError("Failed to save transaction. Please try again.");
+      setApiError(
+        transactionToEdit
+          ? "Failed to update transaction. Please try again."
+          : "Failed to save transaction. Please try again.",
+      );
     }
   };
 
   return (
     <Paper component="section" variant="outlined" sx={{ p: 3 }}>
       <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        Add transaction
+        {transactionToEdit ? "Edit Transaction" : "Add Transaction"}
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -166,8 +205,22 @@ export default function TransactionForm({
           />
 
           <Button type="submit" variant="contained" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Add transaction"}
+            {isSubmitting
+              ? "Saving..."
+              : transactionToEdit
+                ? "Update Transaction"
+                : "Add Transaction"}
           </Button>
+
+          {transactionToEdit && (
+            <Button
+              type="button"
+              onClick={onCancelEdit}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          )}
         </Stack>
       </Box>
     </Paper>

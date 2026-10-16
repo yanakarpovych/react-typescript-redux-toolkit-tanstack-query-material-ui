@@ -17,6 +17,15 @@ export async function createTransaction(
   return response.data;
 }
 
+export async function updateTransaction(
+  id: string,
+  data: CreateTransactionData,
+): Promise<Transaction> {
+  const response = await api.patch<Transaction>(`/transactions/${id}`, data);
+
+  return response.data;
+}
+
 export async function deleteTransaction(id: string): Promise<void> {
   await api.delete<Transaction>(`/transactions/${id}`);
 }

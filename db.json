@@ -2,11 +2,11 @@
   "transactions": [
     {
       "id": "1",
-      "amount": 500,
+      "amount": 1000,
       "type": "income",
       "category": "Salary",
       "date": "2026-10-01",
-      "description": "Monthly salary"
+      "description": "Monthly salary with bonuses"
     },
     {
       "id": "2",

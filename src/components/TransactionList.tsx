@@ -5,11 +5,13 @@ import TransactionItem from "./TransactionItem";
 interface TransactionListProps {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
+  onEditTransaction: (transaction: Transaction) => void;
 }
 
 function TransactionList({
   transactions,
   onDeleteTransaction,
+  onEditTransaction,
 }: TransactionListProps) {
   if (transactions.length === 0) {
     return (
@@ -22,7 +24,12 @@ function TransactionList({
   return (
     <Stack spacing={1.5}>
       {transactions.map((transaction) => (
-        <TransactionItem key={transaction.id} transaction={transaction} onDelete={onDeleteTransaction}/>
+        <TransactionItem
+          key={transaction.id}
+          transaction={transaction}
+          onDelete={onDeleteTransaction}
+          onEdit={onEditTransaction}
+        />
       ))}
     </Stack>
   );

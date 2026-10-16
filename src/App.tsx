@@ -14,9 +14,11 @@ import TransactionForm from "./components/TransactionForm";
 import {
   getTransactions,
   createTransaction,
+  updateTransaction,
   deleteTransaction,
 } from "./api/transactions";
 import type { CreateTransactionData, Transaction } from "./types/transaction";
+import { useState } from "react";
 
 function App() {
   const queryClient = useQueryClient();
@@ -30,8 +32,22 @@ function App() {
     queryFn: getTransactions,
   });
 
+  const [transactionToEdit, setTransactionToEdit] =
+    useState<Transaction | null>(null);
+
   const createMutation = useMutation({
     mutationFn: (data: CreateTransactionData) => createTransaction(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CreateTransactionData }) =>
+      updateTransaction(id, data),
+
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["transactions"],
@@ -54,6 +70,21 @@ function App() {
     return createMutation.mutateAsync(data);
   };
 
+  const handleUpdateTransaction = (
+    id: string,
+    data: CreateTransactionData,
+  ): Promise<Transaction> => {
+    return updateMutation.mutateAsync({ id, data });
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setTransactionToEdit(transaction);
+  };
+
+  const handleCancelEdit = () => {
+    setTransactionToEdit(null);
+  };
+
   const handleDeleteTransaction = (id: string) => {
     deleteMutation.mutate(id);
   };
@@ -69,13 +100,24 @@ function App() {
           Track your income and expenses in one place.
         </Typography>
 
-        <TransactionForm onAddTransaction={handleAddTransaction} />
+        <TransactionForm
+          onAddTransaction={handleAddTransaction}
+          transactionToEdit={transactionToEdit}
+          onUpdateTransaction={handleUpdateTransaction}
+          onCancelEdit={handleCancelEdit}
+        />
 
         {isPending && <CircularProgress />}
 
         {isError && (
           <Alert severity="error" sx={{ my: 2 }}>
             Failed to load transactions. Please try again.
+          </Alert>
+        )}
+
+        {updateMutation.isError && (
+          <Alert severity="error" sx={{ my: 2 }}>
+            Failed to update transaction. Please try again.
           </Alert>
         )}
 
@@ -97,6 +139,7 @@ function App() {
               <TransactionList
                 transactions={transactions}
                 onDeleteTransaction={handleDeleteTransaction}
+                onEditTransaction={handleEditTransaction}
               />
             </Paper>
           </>

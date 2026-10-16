@@ -31,7 +31,7 @@ export default function TransactionForm({
     control,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
@@ -165,8 +165,8 @@ export default function TransactionForm({
             )}
           />
 
-          <Button type="submit" variant="contained">
-            Add transaction
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Add transaction"}
           </Button>
         </Stack>
       </Box>

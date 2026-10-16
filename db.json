@@ -47,6 +47,14 @@
       "date": "2026-10-16",
       "description": "Cosmetics",
       "id": "j5ZP_OpgChA"
+    },
+    {
+      "amount": 50,
+      "type": "income",
+      "category": "Freelance",
+      "date": "2026-10-16",
+      "description": "Tech consultation",
+      "id": "buGaVttnv5o"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

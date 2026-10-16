@@ -11,7 +11,11 @@ import {
 import TransactionList from "./components/TransactionList";
 import SummaryCards from "./components/SummaryCards";
 import TransactionForm from "./components/TransactionForm";
-import { getTransactions, createTransaction } from "./api/transactions";
+import {
+  getTransactions,
+  createTransaction,
+  deleteTransaction,
+} from "./api/transactions";
 import type { CreateTransactionData, Transaction } from "./types/transaction";
 
 function App() {
@@ -35,10 +39,23 @@ function App() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteTransaction(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      });
+    },
+  });
+
   const handleAddTransaction = (
     data: CreateTransactionData,
   ): Promise<Transaction> => {
     return createMutation.mutateAsync(data);
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+    deleteMutation.mutate(id);
   };
 
   return (
@@ -62,6 +79,12 @@ function App() {
           </Alert>
         )}
 
+        {deleteMutation.isError && (
+          <Alert severity="error" sx={{ my: 2 }}>
+            Failed to delete transaction. Please try again.
+          </Alert>
+        )}
+
         {!isPending && !isError && (
           <>
             <SummaryCards transactions={transactions} />
@@ -71,7 +94,10 @@ function App() {
                 Transactions
               </Typography>
 
-              <TransactionList transactions={transactions} />
+              <TransactionList
+                transactions={transactions}
+                onDeleteTransaction={handleDeleteTransaction}
+              />
             </Paper>
           </>
         )}

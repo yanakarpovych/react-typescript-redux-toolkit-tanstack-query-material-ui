@@ -4,9 +4,13 @@ import TransactionItem from "./TransactionItem";
 
 interface TransactionListProps {
   transactions: Transaction[];
+  onDeleteTransaction: (id: string) => void;
 }
 
-function TransactionList({ transactions }: TransactionListProps) {
+function TransactionList({
+  transactions,
+  onDeleteTransaction,
+}: TransactionListProps) {
   if (transactions.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 3 }}>
@@ -18,7 +22,7 @@ function TransactionList({ transactions }: TransactionListProps) {
   return (
     <Stack spacing={1.5}>
       {transactions.map((transaction) => (
-        <TransactionItem key={transaction.id} transaction={transaction} />
+        <TransactionItem key={transaction.id} transaction={transaction} onDelete={onDeleteTransaction}/>
       ))}
     </Stack>
   );

@@ -1,8 +1,10 @@
-import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Box, Chip, IconButton, Paper, Stack, Typography } from "@mui/material";
 import type { Transaction } from "../types/transaction";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 interface TransactionItemProps {
   transaction: Transaction;
+  onDelete: (id: string) => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -16,7 +18,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-function TransactionItem({ transaction }: TransactionItemProps) {
+function TransactionItem({ transaction, onDelete }: TransactionItemProps) {
   const isIncome = transaction.type === "income";
 
   return (
@@ -55,6 +57,13 @@ function TransactionItem({ transaction }: TransactionItemProps) {
             {isIncome ? "+" : "−"}
             {currencyFormatter.format(transaction.amount)}
           </Typography>
+          <IconButton
+            aria-label={`Delete transaction: ${transaction.description}`}
+            color="error"
+            onClick={() => onDelete(transaction.id)}
+          >
+            <DeleteOutlineIcon />
+          </IconButton>
         </Stack>
       </Box>
     </Paper>

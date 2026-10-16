@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -9,9 +10,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 import type { Transaction } from "../types/transaction";
 import TransactionItem from "./TransactionItem";
-import { useState } from "react";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -21,13 +22,34 @@ interface TransactionListProps {
 
 type TransactionTypeFilter = "all" | "income" | "expense";
 
-type SortOption = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
-
 function TransactionList({
   transactions,
   onDeleteTransaction,
   onEditTransaction,
 }: TransactionListProps) {
+  const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const categories = [
+    ...new Set(transactions.map((transaction) => transaction.category)),
+  ].sort((a, b) => a.localeCompare(b));
+
+  const visibleTransactions = transactions.filter((transaction) => {
+    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+
+    const matchesSearch =
+      transaction.description.toLowerCase().includes(normalizedQuery) ||
+      transaction.category.toLowerCase().includes(normalizedQuery);
+
+    const matchesCategory =
+      categoryFilter === "all" || transaction.category === categoryFilter;
+
+    return matchesType && matchesSearch && matchesCategory;
+  });
+
   if (transactions.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 3 }}>
@@ -36,87 +58,9 @@ function TransactionList({
     );
   }
 
-  const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>("all");
-
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
-
-  const normalizedQuery = searchQuery.trim().toLowerCase();
-
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
-
-    const matchesSearch =
-      transaction.description.toLowerCase().includes(normalizedQuery) ||
-      transaction.category.toLowerCase().includes(normalizedQuery);
-
-    return matchesType && matchesSearch;
-  });
-
-  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
-    switch (sortOption) {
-      case "date-desc":
-        return b.date.localeCompare(a.date);
-
-      case "date-asc":
-        return a.date.localeCompare(b.date);
-
-      case "amount-desc":
-        return b.amount - a.amount;
-
-      case "amount-asc":
-        return a.amount - b.amount;
-    }
-  });
-
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
-          mb: 3,
-        }}
-      >
-        <FormControl sx={{ minWidth: 160 }}>
-          <InputLabel id="transaction-type-label">Type</InputLabel>
-
-          <Select
-            labelId="transaction-type-label"
-            id="transaction-type"
-            value={typeFilter}
-            label="Type"
-            onChange={(event) =>
-              setTypeFilter(event.target.value as TransactionTypeFilter)
-            }
-          >
-            <MenuItem value="all">All transactions</MenuItem>
-            <MenuItem value="income">Income</MenuItem>
-            <MenuItem value="expense">Expenses</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ minWidth: 190 }}>
-          <InputLabel id="transaction-sort-label">Sort by</InputLabel>
-
-          <Select
-            labelId="transaction-sort-label"
-            id="transaction-sort"
-            value={sortOption}
-            label="Sort by"
-            onChange={(event) =>
-              setSortOption(event.target.value as SortOption)
-            }
-          >
-            <MenuItem value="date-desc">Newest first</MenuItem>
-            <MenuItem value="date-asc">Oldest first</MenuItem>
-            <MenuItem value="amount-desc">Highest amount</MenuItem>
-            <MenuItem value="amount-asc">Lowest amount</MenuItem>
-          </Select>
-        </FormControl>
-
+      <Stack spacing={2} sx={{ mb: 3 }}>
         <TextField
           label="Search"
           placeholder="Search description or category"
@@ -124,9 +68,69 @@ function TransactionList({
           onChange={(event) => setSearchQuery(event.target.value)}
           fullWidth
         />
-      </Box>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+            },
+            gap: 2,
+          }}
+        >
+          <FormControl fullWidth>
+            <InputLabel id="transaction-type-label">Type</InputLabel>
+            <Select
+              labelId="transaction-type-label"
+              id="transaction-type"
+              value={typeFilter}
+              label="Type"
+              onChange={(event) =>
+                setTypeFilter(event.target.value as TransactionTypeFilter)
+              }
+            >
+              <MenuItem value="all">All transactions</MenuItem>
+              <MenuItem value="income">Income</MenuItem>
+              <MenuItem value="expense">Expenses</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="transaction-category-label">Category</InputLabel>
+            <Select
+              labelId="transaction-category-label"
+              id="transaction-category"
+              value={categoryFilter}
+              label="Category"
+              onChange={(event) => setCategoryFilter(event.target.value)}
+            >
+              <MenuItem value="all">All categories</MenuItem>
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setTypeFilter("all");
+              setCategoryFilter("all");
+              setSearchQuery("");
+            }}
+          >
+            Clear filters
+          </Button>
+        </Box>
+      </Stack>
+
       <Stack spacing={1.5}>
-        {sortedTransactions.map((transaction) => (
+        {visibleTransactions.map((transaction) => (
           <TransactionItem
             key={transaction.id}
             transaction={transaction}
@@ -134,7 +138,8 @@ function TransactionList({
             onEdit={onEditTransaction}
           />
         ))}
-        {sortedTransactions.length === 0 && (
+
+        {visibleTransactions.length === 0 && (
           <Typography
             color="text.secondary"
             sx={{ py: 3, textAlign: "center" }}

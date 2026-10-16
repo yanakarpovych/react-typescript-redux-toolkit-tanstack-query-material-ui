@@ -31,6 +31,15 @@
       "category": "Freelance",
       "date": "2026-10-10",
       "description": "Website project"
+    },
+    {
+      "amount": 10,
+      "type": "expense",
+      "category": "Animals",
+      "date": "2026-10-16",
+      "description": "Cats' food",
+      "id": "CdXBnCKCiZA"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

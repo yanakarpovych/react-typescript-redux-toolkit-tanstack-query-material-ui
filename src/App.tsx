@@ -1,26 +1,48 @@
-import { useState } from "react";
-import { Box, Container, Paper, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Container,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 import TransactionList from "./components/TransactionList";
-import { transactions as initialTransactions } from "./data/transactions";
 import SummaryCards from "./components/SummaryCards";
 import TransactionForm from "./components/TransactionForm";
 import type { Transaction, CreateTransactionData } from "./types/transaction";
+import { createTransaction, getTransactions } from "./api/transactions";
 
 function App() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAddTransaction = (data: CreateTransactionData) => {
-    const newTransaction: Transaction = {
-      id: crypto.randomUUID(),
-      ...data,
-    };
+  useEffect(() => {
+    async function loadTransactions() {
+      try {
+        const data = await getTransactions();
+        setTransactions(data);
+      } catch {
+        setError("Failed to load transactions. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadTransactions();
+  }, []);
+
+  const handleAddTransaction = async (data: CreateTransactionData) => {
+    const newTransaction = await createTransaction(data);
 
     setTransactions((currentTransactions) => [
       newTransaction,
       ...currentTransactions,
     ]);
+
+    return newTransaction;
   };
 
   return (
@@ -36,15 +58,21 @@ function App() {
 
         <TransactionForm onAddTransaction={handleAddTransaction} />
 
+        {isLoading && <CircularProgress />}
+
+        {error && <Alert severity="error">{error}</Alert>}
+
         <SummaryCards transactions={transactions} />
 
-        <Paper variant="outlined" sx={{ p: 3 }}>
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            Transactions
-          </Typography>
+        {!isLoading && (
+          <Paper variant="outlined" sx={{ p: 3 }}>
+            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+              Transactions
+            </Typography>
 
-          <TransactionList transactions={transactions} />
-        </Paper>
+            <TransactionList transactions={transactions} />
+          </Paper>
+        )}
       </Box>
     </Container>
   );

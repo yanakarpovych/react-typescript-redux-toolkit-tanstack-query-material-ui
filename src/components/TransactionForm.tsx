@@ -1,6 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Alert,
   Box,
   Button,
   MenuItem,
@@ -14,10 +15,11 @@ import {
   transactionSchema,
   type TransactionFormData,
 } from "../schemas/transactionSchema";
-import type { CreateTransactionData } from "../types/transaction";
+import type { CreateTransactionData, Transaction } from "../types/transaction";
+import { useState } from "react";
 
 interface TransactionFormProps {
-  onAddTransaction: (data: CreateTransactionData) => void;
+  onAddTransaction: (data: CreateTransactionData) => Promise<Transaction>;
 }
 
 const today = new Date().toISOString().split("T")[0];
@@ -41,16 +43,24 @@ export default function TransactionForm({
     },
   });
 
-  const onSubmit = (data: TransactionFormData) => {
-    onAddTransaction(data);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-    reset({
-      amount: 0,
-      type: "expense",
-      category: "",
-      date: today,
-      description: "",
-    });
+  const onSubmit = async (data: TransactionFormData) => {
+    setApiError(null);
+
+    try {
+      await onAddTransaction(data);
+
+      reset({
+        amount: 0,
+        type: "expense",
+        category: "",
+        date: today,
+        description: "",
+      });
+    } catch {
+      setApiError("Failed to save transaction. Please try again.");
+    }
   };
 
   return (
@@ -60,6 +70,7 @@ export default function TransactionForm({
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+        {apiError && <Alert severity="error">{apiError}</Alert>}
         <Stack spacing={2}>
           <Controller
             name="amount"

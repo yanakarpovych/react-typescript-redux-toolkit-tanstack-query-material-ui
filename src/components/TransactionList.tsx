@@ -21,6 +21,8 @@ interface TransactionListProps {
 
 type TransactionTypeFilter = "all" | "income" | "expense";
 
+type SortOption = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
+
 function TransactionList({
   transactions,
   onDeleteTransaction,
@@ -38,6 +40,8 @@ function TransactionList({
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
+
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const filteredTransactions = transactions.filter((transaction) => {
@@ -48,6 +52,22 @@ function TransactionList({
       transaction.category.toLowerCase().includes(normalizedQuery);
 
     return matchesType && matchesSearch;
+  });
+
+  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+    switch (sortOption) {
+      case "date-desc":
+        return b.date.localeCompare(a.date);
+
+      case "date-asc":
+        return a.date.localeCompare(b.date);
+
+      case "amount-desc":
+        return b.amount - a.amount;
+
+      case "amount-asc":
+        return a.amount - b.amount;
+    }
   });
 
   return (
@@ -78,6 +98,25 @@ function TransactionList({
           </Select>
         </FormControl>
 
+        <FormControl sx={{ minWidth: 190 }}>
+          <InputLabel id="transaction-sort-label">Sort by</InputLabel>
+
+          <Select
+            labelId="transaction-sort-label"
+            id="transaction-sort"
+            value={sortOption}
+            label="Sort by"
+            onChange={(event) =>
+              setSortOption(event.target.value as SortOption)
+            }
+          >
+            <MenuItem value="date-desc">Newest first</MenuItem>
+            <MenuItem value="date-asc">Oldest first</MenuItem>
+            <MenuItem value="amount-desc">Highest amount</MenuItem>
+            <MenuItem value="amount-asc">Lowest amount</MenuItem>
+          </Select>
+        </FormControl>
+
         <TextField
           label="Search"
           placeholder="Search description or category"
@@ -87,7 +126,7 @@ function TransactionList({
         />
       </Box>
       <Stack spacing={1.5}>
-        {filteredTransactions.map((transaction) => (
+        {sortedTransactions.map((transaction) => (
           <TransactionItem
             key={transaction.id}
             transaction={transaction}
@@ -95,7 +134,7 @@ function TransactionList({
             onEdit={onEditTransaction}
           />
         ))}
-        {filteredTransactions.length === 0 && (
+        {sortedTransactions.length === 0 && (
           <Typography
             color="text.secondary"
             sx={{ py: 3, textAlign: "center" }}

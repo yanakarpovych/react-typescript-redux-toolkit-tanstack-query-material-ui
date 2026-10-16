@@ -39,6 +39,14 @@
       "date": "2026-10-16",
       "description": "Cats' food",
       "id": "CdXBnCKCiZA"
+    },
+    {
+      "amount": 20,
+      "type": "expense",
+      "category": "Beauty",
+      "date": "2026-10-16",
+      "description": "Cosmetics",
+      "id": "j5ZP_OpgChA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

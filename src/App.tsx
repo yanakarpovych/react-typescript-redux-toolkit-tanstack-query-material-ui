@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
   Box,
@@ -11,38 +11,34 @@ import {
 import TransactionList from "./components/TransactionList";
 import SummaryCards from "./components/SummaryCards";
 import TransactionForm from "./components/TransactionForm";
-import type { Transaction, CreateTransactionData } from "./types/transaction";
-import { createTransaction, getTransactions } from "./api/transactions";
+import { getTransactions, createTransaction } from "./api/transactions";
+import type { CreateTransactionData, Transaction } from "./types/transaction";
 
 function App() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    async function loadTransactions() {
-      try {
-        const data = await getTransactions();
-        setTransactions(data);
-      } catch {
-        setError("Failed to load transactions. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const {
+    data: transactions = [],
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: getTransactions,
+  });
 
-    loadTransactions();
-  }, []);
+  const createMutation = useMutation({
+    mutationFn: (data: CreateTransactionData) => createTransaction(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      });
+    },
+  });
 
-  const handleAddTransaction = async (data: CreateTransactionData) => {
-    const newTransaction = await createTransaction(data);
-
-    setTransactions((currentTransactions) => [
-      newTransaction,
-      ...currentTransactions,
-    ]);
-
-    return newTransaction;
+  const handleAddTransaction = (
+    data: CreateTransactionData,
+  ): Promise<Transaction> => {
+    return createMutation.mutateAsync(data);
   };
 
   return (
@@ -58,20 +54,26 @@ function App() {
 
         <TransactionForm onAddTransaction={handleAddTransaction} />
 
-        {isLoading && <CircularProgress />}
+        {isPending && <CircularProgress />}
 
-        {error && <Alert severity="error">{error}</Alert>}
+        {isError && (
+          <Alert severity="error" sx={{ my: 2 }}>
+            Failed to load transactions. Please try again.
+          </Alert>
+        )}
 
-        <SummaryCards transactions={transactions} />
+        {!isPending && !isError && (
+          <>
+            <SummaryCards transactions={transactions} />
 
-        {!isLoading && (
-          <Paper variant="outlined" sx={{ p: 3 }}>
-            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-              Transactions
-            </Typography>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                Transactions
+              </Typography>
 
-            <TransactionList transactions={transactions} />
-          </Paper>
+              <TransactionList transactions={transactions} />
+            </Paper>
+          </>
         )}
       </Box>
     </Container>

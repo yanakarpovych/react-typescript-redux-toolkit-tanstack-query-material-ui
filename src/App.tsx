@@ -19,6 +19,10 @@ import {
 } from "./api/transactions";
 import type { CreateTransactionData, Transaction } from "./types/transaction";
 import { useState } from "react";
+import { IconButton, Tooltip } from "@mui/material";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import { useThemeMode } from "./context/ThemeContext";
 
 function App() {
   const queryClient = useQueryClient();
@@ -89,23 +93,47 @@ function App() {
     deleteMutation.mutate(id);
   };
 
+  const { mode, toggleTheme } = useThemeMode();
+
   return (
     <Container maxWidth="md">
       <Box component="main" sx={{ py: 5 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Expense Tracker
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
+          <Typography variant="h4" component="h1" gutterBottom>
+            Expense Tracker
+          </Typography>
+
+          <Tooltip
+            title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
+          >
+            <IconButton onClick={toggleTheme} aria-label="Toggle color theme">
+              {mode === "light" ? (
+                <DarkModeOutlinedIcon />
+              ) : (
+                <LightModeOutlinedIcon />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
 
         <Typography color="text.secondary" sx={{ mb: 4 }}>
           Track your income and expenses in one place.
         </Typography>
-
-        <TransactionForm
-          onAddTransaction={handleAddTransaction}
-          transactionToEdit={transactionToEdit}
-          onUpdateTransaction={handleUpdateTransaction}
-          onCancelEdit={handleCancelEdit}
-        />
+        <Box sx={{ mb: 4 }}>
+          <TransactionForm
+            onAddTransaction={handleAddTransaction}
+            transactionToEdit={transactionToEdit}
+            onUpdateTransaction={handleUpdateTransaction}
+            onCancelEdit={handleCancelEdit}
+          />
+        </Box>
 
         {isPending && <CircularProgress />}
 

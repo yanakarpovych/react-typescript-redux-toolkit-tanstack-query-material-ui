@@ -70,7 +70,7 @@ export default function TransactionForm({
         description: "",
       });
     }
-  }, [transactionToEdit, reset, today]);
+  }, [transactionToEdit, reset]);
 
   const [apiError, setApiError] = useState<string | null>(null);
 

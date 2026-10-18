@@ -18,11 +18,16 @@ import {
   deleteTransaction,
 } from "./api/transactions";
 import type { CreateTransactionData, Transaction } from "./types/transaction";
-import { useState } from "react";
 import { IconButton, Tooltip } from "@mui/material";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import { useThemeMode } from "./context/ThemeContext";
+import { useThemeMode } from "./context/useThemeMode";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "./store/store";
+import {
+  clearTransactionToEdit,
+  setTransactionToEdit,
+} from "./store/transactionSlice";
 
 function App() {
   const queryClient = useQueryClient();
@@ -36,8 +41,11 @@ function App() {
     queryFn: getTransactions,
   });
 
-  const [transactionToEdit, setTransactionToEdit] =
-    useState<Transaction | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const transactionToEdit = useSelector(
+    (state: RootState) => state.transaction.transactionToEdit,
+  );
 
   const createMutation = useMutation({
     mutationFn: (data: CreateTransactionData) => createTransaction(data),
@@ -56,6 +64,7 @@ function App() {
       await queryClient.invalidateQueries({
         queryKey: ["transactions"],
       });
+      dispatch(clearTransactionToEdit());
     },
   });
 
@@ -82,11 +91,11 @@ function App() {
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
-    setTransactionToEdit(transaction);
+    dispatch(setTransactionToEdit(transaction));
   };
 
   const handleCancelEdit = () => {
-    setTransactionToEdit(null);
+    dispatch(clearTransactionToEdit());
   };
 
   const handleDeleteTransaction = (id: string) => {

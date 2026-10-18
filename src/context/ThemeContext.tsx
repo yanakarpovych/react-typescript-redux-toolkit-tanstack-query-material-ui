@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   CssBaseline,
@@ -17,7 +17,7 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [mode, setMode] = useState<ThemeMode>("light");
@@ -51,14 +51,4 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       </MuiThemeProvider>
     </ThemeContext.Provider>
   );
-}
-
-export function useThemeMode() {
-  const context = useContext(ThemeContext);
-
-  if (context === undefined) {
-    throw new Error("useThemeMode must be used within ThemeProvider");
-  }
-
-  return context;
 }

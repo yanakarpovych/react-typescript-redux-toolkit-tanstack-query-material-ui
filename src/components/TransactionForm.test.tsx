@@ -58,4 +58,53 @@ describe("TransactionForm", () => {
       }),
     );
   });
+
+  it("submits updated data when editing a transaction", async () => {
+    const user = userEvent.setup();
+    const onAddTransaction = vi.fn().mockResolvedValue(savedTransaction);
+    const onUpdateTransaction = vi.fn().mockResolvedValue(savedTransaction);
+    const onCancelEdit = vi.fn();
+
+    render(
+      <TransactionForm
+        onAddTransaction={onAddTransaction}
+        transactionToEdit={savedTransaction}
+        onUpdateTransaction={onUpdateTransaction}
+        onCancelEdit={onCancelEdit}
+      />,
+    );
+
+    const descriptionField = screen.getByRole("textbox", {
+      name: "Description",
+    });
+
+    await waitFor(() => {
+      expect(descriptionField).toHaveValue("Groceries");
+    });
+
+    await user.clear(descriptionField);
+    await user.type(descriptionField, "Updated groceries");
+
+    await user.click(
+      screen.getByRole("button", { name: "Update Transaction" }),
+    );
+
+    await waitFor(() => {
+      expect(onUpdateTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    expect(onUpdateTransaction).toHaveBeenCalledWith(
+      "1",
+      expect.objectContaining({
+        amount: 25.5,
+        type: "expense",
+        category: "Food",
+        date: "2026-10-15",
+        description: "Updated groceries",
+      }),
+    );
+
+    expect(onAddTransaction).not.toHaveBeenCalled();
+    expect(onCancelEdit).toHaveBeenCalledTimes(1);
+  });
 });

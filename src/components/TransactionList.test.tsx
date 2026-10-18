@@ -73,4 +73,17 @@ describe("TransactionList", () => {
     expect(items).toHaveLength(1);
     expect(items[0]).toHaveTextContent("Monthly salary — Salary");
   });
+
+  it("filters transactions by category", async () => {
+    const user = userEvent.setup();
+
+    fireEvent.mouseDown(screen.getByRole("combobox", { name: "Category" }));
+
+    await user.click(screen.getByRole("option", { name: "Food" }));
+
+    const items = screen.getAllByTestId("transaction-item");
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent("Groceries — Food");
+  });
 });

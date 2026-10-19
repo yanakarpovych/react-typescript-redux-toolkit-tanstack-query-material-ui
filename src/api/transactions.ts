@@ -2,7 +2,7 @@ import axios from "axios";
 import type { Transaction, CreateTransactionData } from "../types/transaction";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001",
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3001",
 });
 
 export async function getTransactions(): Promise<Transaction[]> {

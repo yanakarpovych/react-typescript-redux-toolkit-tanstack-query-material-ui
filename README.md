@@ -1,75 +1,90 @@
-# React + TypeScript + Vite
+# Expense Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal expense tracking web application where users can manage transactions, track expenses, and monitor their financial activity.
 
-Currently, two official plugins are available:
+## Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[Live Demo](https://expense-tracker-8nxp5wfau-yana-39dd.vercel.app/)
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- View a list of transactions
+- Add new transactions
+- Edit existing transactions
+- Delete transactions
+- Manage transaction data through a REST API
+- Form validation
+- Responsive user interface
 
-## Expanding the ESLint configuration
+## Technologies
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React
+- TypeScript
+- Vite
+- Material UI (MUI)
+- Redux Toolkit
+- Axios
+- TanStack React Query
+- React Hook Form
+- Zod
+- JSON Server
+- Vitest
+- React Testing Library
+- Vercel
+- Render
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Clone the repository:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone https://github.com/yanakarpovych/react-typescript-redux-toolkit-tanstack-query-material-ui.git
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Navigate to the project directory:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd react-typescript-redux-toolkit-tanstack-query-material-ui
 ```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env` file in the project root and configure the API URL:
+
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Start the JSON Server API in a separate terminal:
+
+```bash
+npm run server
+```
+
+To create a production build:
+
+```bash
+npm run build
+```
+
+To run tests:
+
+```bash
+npm test
+```
+
+## Deployment
+
+- **Frontend:** Vercel
+- **Backend:** Render
+- **API:** JSON Server
